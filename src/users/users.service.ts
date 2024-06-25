@@ -21,12 +21,8 @@ export class UsersService {
     private bcryptService: BcryptService,
   ) {}
 
-  async getUsers(username?: string): Promise<ItemsPayloadDto<User>> {
-    if (username) {
-      return this.getUsersItemsPayloadDto(username);
-    }
-
-    return this.getUsersItemsPayloadDto();
+  async getUsers(username: string): Promise<ItemsPayloadDto<User>> {
+    return this.getUsersItemsPayloadDto(username);
   }
 
   async getUserId(userId: number): Promise<User> {
@@ -91,12 +87,18 @@ export class UsersService {
       return user;
     }
 
-    return this.prismaService.user.findUnique({
+    const user: User | null = await this.prismaService.user.findUnique({
       where: {
         email,
         username,
       },
     });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
   }
 
   async updatePassword({

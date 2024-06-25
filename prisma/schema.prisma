@@ -7,11 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UsersRoles {
+  ADMIN
+  USER
+}
+
 model User {
   id       Int    @id @default(autoincrement())
   email    String @unique
   username String @unique
   password String
+
+  role UsersRoles @default(USER)
 
   token Token?
 
@@ -36,4 +43,31 @@ model Token {
 
   @@index([id])
   @@index([userId])
+}
+
+model Category {
+  id          Int    @id @default(autoincrement())
+  name        String @unique @db.VarChar(36)
+  description String @db.VarChar(256)
+
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  @@index([id])
+  @@index([name])
+}
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(256)
+  description String  @db.VarChar(256)
+  price       BigInt
+  count       BigInt
+  isStock     Boolean
+  stock       Int
+
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  @@index([id])
 }
