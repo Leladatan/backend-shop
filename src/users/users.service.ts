@@ -7,9 +7,9 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { User } from '@prisma/client';
 import { ItemsPayloadDto } from '@/utils/items.dto';
 import {
-  UsersFindUserType,
-  UsersUpdatePasswordType,
-  UsersUpdateUserId,
+  findUserType,
+  updatePasswordType,
+  updateUserId,
 } from '@/users/types/users.types';
 import { AuthPayloadDto } from '@/auth/dto/auth.dto';
 import { BcryptService } from '@/bcrypt/bcrypt.service';
@@ -29,7 +29,7 @@ export class UsersService {
     return await this.findUser({ userId });
   }
 
-  async updateUserId({ userId, payload }: UsersUpdateUserId): Promise<User> {
+  async updateUserId({ userId, payload }: updateUserId): Promise<User> {
     await this.findUser({ userId });
 
     return this.prismaService.user.update({
@@ -47,6 +47,9 @@ export class UsersService {
       const [items, total] = await this.prismaService.$transaction([
         this.prismaService.user.findMany({
           where: { username: { contains: username } },
+          orderBy: {
+            id: 'asc',
+          },
         }),
         this.prismaService.user.count(),
       ]);
@@ -58,7 +61,11 @@ export class UsersService {
     }
 
     const [items, total] = await this.prismaService.$transaction([
-      this.prismaService.user.findMany(),
+      this.prismaService.user.findMany({
+        orderBy: {
+          id: 'asc',
+        },
+      }),
       this.prismaService.user.count(),
     ]);
 
@@ -68,11 +75,7 @@ export class UsersService {
     };
   }
 
-  async findUser({
-    email,
-    username,
-    userId = 0,
-  }: UsersFindUserType): Promise<User> {
+  async findUser({ email, username, userId = 0 }: findUserType): Promise<User> {
     if (userId) {
       const user: User | null = await this.prismaService.user.findUnique({
         where: {
@@ -104,7 +107,7 @@ export class UsersService {
   async updatePassword({
     userId,
     password,
-  }: UsersUpdatePasswordType): Promise<User> {
+  }: updatePasswordType): Promise<User> {
     const hashedPassword: string = await this.bcryptService.hashData(password);
 
     return this.prismaService.user.update({

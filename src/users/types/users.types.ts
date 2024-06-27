@@ -1,14 +1,14 @@
 import { UsersPayloadDto } from '@/users/dto/users.dto';
 import { AuthPayloadDto } from '@/auth/dto/auth.dto';
 
-export type UsersUpdateUserId = {
+export type updateUserId = {
   userId: number;
   payload: UsersPayloadDto;
 };
-export type UsersFindUserType = Partial<AuthPayloadDto> & {
+export type findUserType = Partial<AuthPayloadDto> & {
   userId?: number;
 };
-export type UsersUpdatePasswordType = {
+export type updatePasswordType = {
   userId: number;
   password: string;
 };
