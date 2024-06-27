@@ -4,16 +4,15 @@ import { AuthPayloadDto } from '@/auth/dto/auth.dto';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import {
-  AuthChangePasswordType,
-  AuthComparePasswordType,
-  AuthLoginType,
-  AuthLogoutType,
-  AuthRefreshTokenType,
+  changePasswordType,
+  comparePasswordType,
+  loginType,
+  logoutType,
 } from '@/auth/types/auth.types';
-import { TokensService } from '@/tokens/tokens.service';
-import { TokensPayloadDto } from '@/tokens/dto/tokens.dto';
 import { UsersService } from '@/users/users.service';
 import { BcryptService } from '@/bcrypt/bcrypt.service';
+import { TokensService } from '@/auth/tokens/tokens.service';
+import { TokensPayloadDto } from '@/auth/tokens/dto/tokens.dto';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +23,7 @@ export class AuthService {
     private bcryptService: BcryptService,
   ) {}
 
-  async signIn({ payload, res }: AuthLoginType): Promise<TokensPayloadDto> {
+  async signIn({ payload, res }: loginType): Promise<TokensPayloadDto> {
     const user: User = await this.usersService.findUser(payload);
 
     await this.comparePassword({
@@ -88,7 +87,7 @@ export class AuthService {
     userId,
     password,
     new_password,
-  }: AuthChangePasswordType): Promise<User> {
+  }: changePasswordType): Promise<User> {
     const user: User = await this.usersService.findUser({ userId });
 
     await this.comparePassword({
@@ -99,36 +98,7 @@ export class AuthService {
     return this.usersService.updatePassword({ userId, password: new_password });
   }
 
-  async refresh({
-    userId,
-    res,
-  }: AuthRefreshTokenType): Promise<TokensPayloadDto> {
-    const user: User = await this.usersService.findUser({ userId });
-
-    const { accessToken, refreshToken } = await this.tokensService.getTokens({
-      userId,
-      ...user,
-    });
-
-    await this.tokensService.updateTokens({
-      userId,
-      at: accessToken,
-      rt: refreshToken,
-    });
-
-    await this.tokensService.cookiesCreate({
-      res,
-      at: accessToken,
-      rt: refreshToken,
-    });
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  async logout({ userId, res }: AuthLogoutType): Promise<void> {
+  async logout({ userId, res }: logoutType): Promise<void> {
     await this.tokensService.isExistToken(userId);
     await this.tokensService.cookiesClear(res);
     await this.tokensService.deleteTokens(userId);
@@ -137,7 +107,7 @@ export class AuthService {
   async comparePassword({
     password,
     userPassword,
-  }: AuthComparePasswordType): Promise<boolean> {
+  }: comparePasswordType): Promise<boolean> {
     const isCompare: boolean = await bcrypt.compare(password, userPassword);
 
     if (!isCompare) {
