@@ -50,6 +50,8 @@ model Category {
   name        String @unique @db.VarChar(36)
   description String @db.VarChar(256)
 
+  products Product[] @relation(name: "CategoryToProduct")
+
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
 
@@ -61,10 +63,12 @@ model Product {
   id          Int     @id @default(autoincrement())
   name        String  @db.VarChar(256)
   description String  @db.VarChar(256)
-  price       BigInt
-  count       BigInt
+  price       Int
+  count       Int
   isStock     Boolean
   stock       Int
+
+  categories Category[] @relation(name: "CategoryToProduct")
 
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
