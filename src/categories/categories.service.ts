@@ -67,6 +67,9 @@ export class CategoriesService {
       const [items, total] = await this.prismaService.$transaction([
         this.prismaService.category.findMany({
           where: { name: { contains: name } },
+          orderBy: {
+            id: 'asc',
+          },
         }),
         this.prismaService.category.count(),
       ]);
@@ -78,7 +81,11 @@ export class CategoriesService {
     }
 
     const [items, total] = await this.prismaService.$transaction([
-      this.prismaService.category.findMany(),
+      this.prismaService.category.findMany({
+        orderBy: {
+          id: 'asc',
+        },
+      }),
       this.prismaService.category.count(),
     ]);
 

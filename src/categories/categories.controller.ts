@@ -9,14 +9,18 @@ import {
   Query,
 } from '@nestjs/common';
 import { CategoriesService } from '@/categories/categories.service';
-import { Category } from '@prisma/client';
+import { Category, Product } from '@prisma/client';
 import { ItemsPayloadDto } from '@/utils/items.dto';
 import { Public } from '@/utils/decorators/public.decorator';
 import { CategoriesPayloadDto } from '@/categories/dto/categories.dto';
+import { ProductsService } from '@/categories/products/products.service';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(
+    private readonly categoriesService: CategoriesService,
+    private readonly productsService: ProductsService,
+  ) {}
 
   @Public()
   @Get()
@@ -56,5 +60,19 @@ export class CategoriesController {
   @Delete(':id')
   async deleteCategoryId(@Param('id') categoryId: string): Promise<Category> {
     return this.categoriesService.deleteCategoryId(Number(categoryId));
+  }
+
+  //  Products
+
+  @Public()
+  @Get(':id/products')
+  async getProducts(
+    @Param('id') categoryId: string,
+    @Query() query: { name: string },
+  ): Promise<ItemsPayloadDto<Product>> {
+    return this.productsService.getProducts({
+      categoryId: Number(categoryId),
+      name: query.name,
+    });
   }
 }
