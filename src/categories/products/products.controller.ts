@@ -9,17 +9,17 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Public()
-  @Get(':id')
-  async getProductId(@Param('id') productId: string): Promise<Product> {
-    return this.productsService.getProductId(Number(productId));
-  }
-
-  @Public()
   @Post()
   async createProduct(
     @Body() payload: ProductsWithCategoryPayloadDto,
   ): Promise<Product> {
     return this.productsService.createProduct(payload);
+  }
+
+  @Public()
+  @Get(':id')
+  async getProductId(@Param('id') productId: string): Promise<Product> {
+    return this.productsService.getProductId(Number(productId));
   }
 
   @Public()
