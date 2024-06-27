@@ -24,3 +24,7 @@ export type jwtTokenType = {
   email: string;
   username: string;
 };
+export type refreshTokensType = {
+  userId: number;
+  res: FastifyReply;
+};

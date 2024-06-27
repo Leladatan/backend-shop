@@ -1,16 +1,23 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { Token } from '@prisma/client';
+import { Token, User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
-import { TokensPayloadDto } from '@/tokens/dto/tokens.dto';
+import { TokensPayloadDto } from '@/auth/tokens/dto/tokens.dto';
 import {
   cookiesCreateType,
   createTokensType,
   getTokensType,
+  refreshTokensType,
   updateTokensType,
-} from '@/tokens/types/tokens.types';
+} from '@/auth/tokens/types/tokens.types';
 import { FastifyReply } from 'fastify';
 import { BcryptService } from '@/bcrypt/bcrypt.service';
+import { UsersService } from '@/users/users.service';
 
 @Injectable()
 export class TokensService {
@@ -18,6 +25,7 @@ export class TokensService {
     private prismaService: PrismaService,
     private jwtService: JwtService,
     private bcryptService: BcryptService,
+    private usersService: UsersService,
   ) {}
 
   async getTokens({
@@ -53,6 +61,35 @@ export class TokensService {
     return {
       accessToken: at,
       refreshToken: rt,
+    };
+  }
+
+  async refreshTokens({
+    userId,
+    res,
+  }: refreshTokensType): Promise<TokensPayloadDto> {
+    const user: User = await this.usersService.findUser({ userId });
+
+    const { accessToken, refreshToken } = await this.getTokens({
+      userId,
+      ...user,
+    });
+
+    await this.updateTokens({
+      userId,
+      at: accessToken,
+      rt: refreshToken,
+    });
+
+    await this.cookiesCreate({
+      res,
+      at: accessToken,
+      rt: refreshToken,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
     };
   }
 

@@ -1,9 +1,9 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
-import { jwtTokenType } from '@/tokens/types/tokens.types';
 import { FastifyRequest } from 'fastify';
-import { TokensService } from '@/tokens/tokens.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { TokensService } from '@/auth/tokens/tokens.service';
+import { jwtTokenType } from '@/auth/tokens/types/tokens.types';
 
 @Injectable()
 export class AtToken extends PassportStrategy(Strategy, 'jwt') {
