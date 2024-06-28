@@ -11,6 +11,7 @@ import {
   createProductType,
   getProductsItemsPayloadDtoType,
   getProductsType,
+  getProductWithCategoriesWithVendorType,
   updateProductIdType,
 } from '@/products/types/products.types';
 import { CategoriesService } from '@/categories/categories.service';
@@ -44,7 +45,9 @@ export class ProductsService {
     return this.getProductsItemsPayloadDto({ name });
   }
 
-  async getProductId(productId: number): Promise<Product> {
+  async getProductId(
+    productId: number,
+  ): Promise<getProductWithCategoriesWithVendorType> {
     return this.findProduct(productId);
   }
 
@@ -52,12 +55,18 @@ export class ProductsService {
     categoryIds,
     vendorId,
     ...payload
-  }: createProductType): Promise<Product> {
+  }: createProductType): Promise<getProductWithCategoriesWithVendorType> {
+    await this.categoriesService.findCategories(categoryIds);
+    await this.vendorsService.findVendor(vendorId);
     return this.prismaService.product.create({
       data: {
         ...payload,
         categories: { connect: categoryIds.map((id) => ({ id })) },
-        vendors: { connect: { id: vendorId } },
+        vendor: { connect: { id: vendorId } },
+      },
+      include: {
+        categories: true,
+        vendor: true,
       },
     });
   }
@@ -66,7 +75,7 @@ export class ProductsService {
     productId,
     categoryIds,
     ...payload
-  }: updateProductIdType): Promise<Product> {
+  }: updateProductIdType): Promise<getProductWithCategoriesWithVendorType> {
     await this.findProduct(productId);
     return this.prismaService.product.update({
       where: {
@@ -76,14 +85,24 @@ export class ProductsService {
         ...payload,
         categories: { connect: categoryIds.map((id) => ({ id })) },
       },
+      include: {
+        categories: true,
+        vendor: true,
+      },
     });
   }
 
-  async deleteProductId(productId: number): Promise<Product> {
+  async deleteProductId(
+    productId: number,
+  ): Promise<getProductWithCategoriesWithVendorType> {
     await this.findProduct(productId);
     return this.prismaService.product.delete({
       where: {
         id: productId,
+      },
+      include: {
+        categories: true,
+        vendor: true,
       },
     });
   }
@@ -100,7 +119,7 @@ export class ProductsService {
         this.prismaService.product.findMany({
           where: {
             name: { contains: name },
-            vendors: { some: { id: vendorId } },
+            vendor: { id: vendorId },
           },
           orderBy: {
             id: 'asc',
@@ -109,7 +128,7 @@ export class ProductsService {
         this.prismaService.product.count({
           where: {
             name: { contains: name },
-            vendors: { some: { id: vendorId } },
+            vendor: { id: vendorId },
           },
         }),
       ]);
@@ -124,7 +143,7 @@ export class ProductsService {
       const [items, total] = await this.prismaService.$transaction([
         this.prismaService.product.findMany({
           where: {
-            vendors: { some: { id: vendorId } },
+            vendor: { id: vendorId },
           },
           orderBy: {
             id: 'asc',
@@ -132,7 +151,7 @@ export class ProductsService {
         }),
         this.prismaService.product.count({
           where: {
-            vendors: { some: { id: vendorId } },
+            vendor: { id: vendorId },
           },
         }),
       ]);
@@ -190,14 +209,19 @@ export class ProductsService {
     };
   }
 
-  async findProduct(productId: number) {
-    const product: Product | null = await this.prismaService.product.findUnique(
-      {
+  async findProduct(
+    productId: number,
+  ): Promise<getProductWithCategoriesWithVendorType> {
+    const product: getProductWithCategoriesWithVendorType | null =
+      await this.prismaService.product.findUnique({
         where: {
           id: productId,
         },
-      },
-    );
+        include: {
+          categories: true,
+          vendor: true,
+        },
+      });
 
     if (!product) throw new NotFoundException('Product not found');
 

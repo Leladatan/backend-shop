@@ -2,6 +2,7 @@ import {
   ProductsPayloadDto,
   ProductsWithCategoryPayloadDto,
 } from '@/products/dto/products.dto';
+import { Category, Vendor } from '@prisma/client';
 
 export type getProductsType = {
   categoryId?: number;
@@ -19,4 +20,8 @@ export type createProductType = ProductsPayloadDto & {
 };
 export type updateProductIdType = ProductsWithCategoryPayloadDto & {
   productId: number;
+};
+export type getProductWithCategoriesWithVendorType = {
+  categories: Category[];
+  vendor: Vendor;
 };

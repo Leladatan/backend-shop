@@ -13,6 +13,7 @@ import { Public } from '@/utils/decorators/public.decorator';
 import { ProductsWithCategoryPayloadDto } from '@/products/dto/products.dto';
 import { Product } from '@prisma/client';
 import { ItemsPayloadDto } from '@/utils/items.dto';
+import { getProductWithCategoriesWithVendorType } from '@/products/types/products.types';
 
 @Controller('products')
 export class ProductsController {
@@ -30,7 +31,9 @@ export class ProductsController {
 
   @Public()
   @Get(':id')
-  async getProductId(@Param('id') productId: string): Promise<Product> {
+  async getProductId(
+    @Param('id') productId: string,
+  ): Promise<getProductWithCategoriesWithVendorType> {
     return this.productsService.getProductId(Number(productId));
   }
 
@@ -38,7 +41,7 @@ export class ProductsController {
   @Post()
   async createProduct(
     @Body() payload: ProductsWithCategoryPayloadDto,
-  ): Promise<Product> {
+  ): Promise<getProductWithCategoriesWithVendorType> {
     return this.productsService.createProduct(payload);
   }
 
@@ -47,7 +50,7 @@ export class ProductsController {
   async updateProductId(
     @Param('id') productId: string,
     @Body() payload: ProductsWithCategoryPayloadDto,
-  ): Promise<Product> {
+  ): Promise<getProductWithCategoriesWithVendorType> {
     return this.productsService.updateProductId({
       productId: Number(productId),
       ...payload,
@@ -56,7 +59,9 @@ export class ProductsController {
 
   @Public()
   @Delete(':id')
-  async deleteProductId(@Param('id') productId: string): Promise<Product> {
+  async deleteProductId(
+    @Param('id') productId: string,
+  ): Promise<getProductWithCategoriesWithVendorType> {
     return this.productsService.deleteProductId(Number(productId));
   }
 }
