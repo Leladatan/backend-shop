@@ -74,16 +74,22 @@ export class ProductsService {
   async updateProductId({
     productId,
     categoryIds,
+    vendorId,
     ...payload
   }: updateProductIdType): Promise<getProductWithCategoriesWithVendorType> {
     await this.findProduct(productId);
+    await this.categoriesService.findCategories(categoryIds);
+    await this.vendorsService.findVendor(vendorId);
     return this.prismaService.product.update({
       where: {
         id: productId,
       },
       data: {
         ...payload,
-        categories: { connect: categoryIds.map((id) => ({ id })) },
+        categories: {
+          connect: categoryIds.map((id: number): { id: number } => ({ id })),
+        },
+        vendor: { connect: { id: vendorId } },
       },
       include: {
         categories: true,
