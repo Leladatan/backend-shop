@@ -69,9 +69,26 @@ model Product {
   stock       Int
 
   categories Category[] @relation(name: "CategoryToProduct")
+  vendors    Vendor[]   @relation(name: "VendorToProduct")
 
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
 
   @@index([id])
+}
+
+model Vendor {
+  id                  Int    @id @default(autoincrement())
+  name                String
+  INN                 String @unique
+  OGRNIP              String @unique
+  registration_number String
+
+  Product Product[] @relation(name: "VendorToProduct")
+
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  @@index([id])
+  @@index([name])
 }
