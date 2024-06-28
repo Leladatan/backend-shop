@@ -18,9 +18,9 @@ model User {
   username String @unique
   password String
 
-  role UsersRoles @default(USER)
-
-  token Token?
+  vendor Vendor?
+  role   UsersRoles @default(USER)
+  token  Token?
 
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
@@ -84,11 +84,14 @@ model Vendor {
   OGRNIP              String @unique
   registration_number String
 
-  Product Product[] @relation(name: "VendorToProduct")
+  userId   Int       @unique
+  user     User?     @relation(fields: [userId], references: [id])
+  products Product[] @relation(name: "VendorToProduct")
 
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
 
   @@index([id])
   @@index([name])
+  @@index([userId])
 }
