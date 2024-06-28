@@ -12,7 +12,7 @@ import { ProductsService } from '@/products/products.service';
 import { Public } from '@/utils/decorators/public.decorator';
 import { ItemsPayloadDto } from '@/utils/items.dto';
 import { Vendor } from '@prisma/client';
-import { VendorsPayloadDto } from '@/vendors/dto/vendors.dto';
+import { CreateVendorsPayloadDto, VendorsPayloadDto } from '@/vendors/dto/vendors.dto';
 
 @Controller('vendors')
 export class VendorsController {
@@ -45,7 +45,7 @@ export class VendorsController {
   @Patch(':id')
   async updateVendor(
     @Param('id') vendorId: string,
-    @Body() payload: VendorsPayloadDto,
+    @Body() payload: CreateVendorsPayloadDto,
   ): Promise<Vendor> {
     return this.vendorsService.updateVendor({
       vendorId: Number(vendorId),

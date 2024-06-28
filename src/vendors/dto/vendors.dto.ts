@@ -17,3 +17,18 @@ export class VendorsPayloadDto {
   @IsNumber()
   userId: number;
 }
+
+export class CreateVendorsPayloadDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+  @IsNotEmpty()
+  @IsString()
+  INN: string;
+  @IsNotEmpty()
+  @IsString()
+  OGRNIP: string;
+  @IsNotEmpty()
+  @IsString()
+  registration_number: string;
+}

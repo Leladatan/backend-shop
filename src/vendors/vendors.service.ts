@@ -8,6 +8,7 @@ import { ItemsPayloadDto } from '@/utils/items.dto';
 import { Vendor } from '@prisma/client';
 import { VendorsPayloadDto } from '@/vendors/dto/vendors.dto';
 import {
+  getVendorWithUserWithProducts,
   isExistVendorType,
   updateVendorType,
 } from '@/vendors/types/vendors.types';
@@ -24,7 +25,7 @@ export class VendorsService {
     return this.getVendorsItemsPayloadDto(name);
   }
 
-  async getVendorId(vendorId: number): Promise<Vendor> {
+  async getVendorId(vendorId: number): Promise<getVendorWithUserWithProducts> {
     return this.findVendor(vendorId);
   }
 
@@ -116,15 +117,20 @@ export class VendorsService {
     return !!vendor;
   }
 
-  async findVendor(vendorId: number): Promise<Vendor> {
-    const vendor: Vendor | null = await this.prismaService.vendor.findUnique({
-      where: {
-        id: vendorId,
-      },
-    });
+  async findVendor(vendorId: number): Promise<getVendorWithUserWithProducts> {
+    const vendor: getVendorWithUserWithProducts | null =
+      await this.prismaService.vendor.findUnique({
+        where: {
+          id: vendorId,
+        },
+        include: {
+          user: true,
+          products: true,
+        },
+      });
 
     if (!vendor) throw new NotFoundException('Vendor not found');
 
-    return vendor as unknown as Vendor;
+    return vendor;
   }
 }
