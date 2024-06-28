@@ -13,7 +13,7 @@ import { Category, Product } from '@prisma/client';
 import { ItemsPayloadDto } from '@/utils/items.dto';
 import { Public } from '@/utils/decorators/public.decorator';
 import { CategoriesPayloadDto } from '@/categories/dto/categories.dto';
-import { ProductsService } from '@/categories/products/products.service';
+import { ProductsService } from '@/products/products.service';
 
 @Controller('categories')
 export class CategoriesController {
@@ -73,6 +73,6 @@ export class CategoriesController {
     return this.productsService.getProducts({
       categoryId: Number(categoryId),
       name: query.name,
-    });
+    }) as Promise<ItemsPayloadDto<Product>>;
   }
 }

@@ -18,12 +18,7 @@ export class CategoriesService {
   }
 
   async getCategoryId(categoryId: number): Promise<Category> {
-    await this.findCategory(categoryId);
-    return this.prismaService.category.findUnique({
-      where: {
-        id: categoryId,
-      },
-    });
+    return this.findCategory(categoryId);
   }
 
   async createCategory(payload: CategoriesPayloadDto): Promise<Category> {
@@ -71,7 +66,9 @@ export class CategoriesService {
             id: 'asc',
           },
         }),
-        this.prismaService.category.count(),
+        this.prismaService.category.count({
+          where: { name: { contains: name } },
+        }),
       ]);
 
       return {
