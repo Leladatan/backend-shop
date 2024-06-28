@@ -51,7 +51,9 @@ export class UsersService {
             id: 'asc',
           },
         }),
-        this.prismaService.user.count(),
+        this.prismaService.user.count({
+          where: { username: { contains: username } },
+        }),
       ]);
 
       return {
@@ -130,9 +132,7 @@ export class UsersService {
       },
     });
 
-    if (isExistEmail) {
-      throw new UnauthorizedException('Email already exists');
-    }
+    if (isExistEmail) throw new UnauthorizedException('Email already exists');
 
     const isExistUsername: User | null =
       await this.prismaService.user.findUnique({
@@ -141,9 +141,8 @@ export class UsersService {
         },
       });
 
-    if (isExistUsername) {
-      throw new UnauthorizedException('Username already exist');
-    }
+    if (isExistUsername)
+      throw new UnauthorizedException('Username already exists');
 
     return {
       isExistEmail: !!isExistEmail,
