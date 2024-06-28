@@ -6,7 +6,10 @@ import {
 import { PrismaService } from '@/prisma/prisma.service';
 import { Category } from '@prisma/client';
 import { ItemsPayloadDto } from '@/utils/items.dto';
-import { updateCategoryIdType } from '@/categories/types/categories.types';
+import {
+  getCategoryWithProductsType,
+  updateCategoryIdType,
+} from '@/categories/types/categories.types';
 import { CategoriesPayloadDto } from '@/categories/dto/categories.dto';
 
 @Injectable()
@@ -17,15 +20,22 @@ export class CategoriesService {
     return this.getCategoriesItemsPayloadDto(name);
   }
 
-  async getCategoryId(categoryId: number): Promise<Category> {
+  async getCategoryId(
+    categoryId: number,
+  ): Promise<getCategoryWithProductsType> {
     return this.findCategory(categoryId);
   }
 
-  async createCategory(payload: CategoriesPayloadDto): Promise<Category> {
+  async createCategory(
+    payload: CategoriesPayloadDto,
+  ): Promise<getCategoryWithProductsType> {
     await this.isExistCategoryData(payload);
     return this.prismaService.category.create({
       data: {
         ...payload,
+      },
+      include: {
+        products: true,
       },
     });
   }
@@ -33,7 +43,7 @@ export class CategoriesService {
   async updateCategoryId({
     categoryId,
     payload,
-  }: updateCategoryIdType): Promise<Category> {
+  }: updateCategoryIdType): Promise<getCategoryWithProductsType> {
     await this.findCategory(categoryId);
     return this.prismaService.category.update({
       where: {
@@ -42,14 +52,23 @@ export class CategoriesService {
       data: {
         ...payload,
       },
+      include: {
+        products: true,
+      },
     });
   }
 
-  async deleteCategoryId(categoryId: number): Promise<Category> {
-    const category: Category = await this.findCategory(categoryId);
+  async deleteCategoryId(
+    categoryId: number,
+  ): Promise<getCategoryWithProductsType> {
+    const category: getCategoryWithProductsType =
+      await this.findCategory(categoryId);
     await this.prismaService.category.delete({
       where: {
         id: categoryId,
+      },
+      include: {
+        products: true,
       },
     });
     return category;
@@ -105,16 +124,46 @@ export class CategoriesService {
     return !!category;
   }
 
-  async findCategory(categoryId: number): Promise<Category> {
-    const category: Category | null =
+  async findCategory(categoryId: number): Promise<getCategoryWithProductsType> {
+    const category: getCategoryWithProductsType | null =
       await this.prismaService.category.findUnique({
         where: {
           id: categoryId,
+        },
+        include: {
+          products: true,
         },
       });
 
     if (!category) throw new NotFoundException('Category not found');
 
     return category;
+  }
+
+  async findCategories(
+    categoryIds: number[],
+  ): Promise<ItemsPayloadDto<Category>> {
+    const categories: Category[] = await this.prismaService.category.findMany({
+      where: {
+        id: {
+          in: categoryIds,
+        },
+      },
+    });
+
+    const notFoundIds: number[] = categoryIds.filter(
+      (id: number) =>
+        !categories.some((category: Category): boolean => category.id === id),
+    );
+
+    if (notFoundIds.length > 0)
+      throw new NotFoundException(
+        `Not found categories with IDs [${notFoundIds.join(', ')}]`,
+      );
+
+    return {
+      items: categories,
+      total: categories.length,
+    };
   }
 }

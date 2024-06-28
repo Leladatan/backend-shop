@@ -14,6 +14,7 @@ import { ItemsPayloadDto } from '@/utils/items.dto';
 import { Public } from '@/utils/decorators/public.decorator';
 import { CategoriesPayloadDto } from '@/categories/dto/categories.dto';
 import { ProductsService } from '@/products/products.service';
+import { getCategoryWithProductsType } from '@/categories/types/categories.types';
 
 @Controller('categories')
 export class CategoriesController {
@@ -32,7 +33,9 @@ export class CategoriesController {
 
   @Public()
   @Get(':id')
-  async getCategoryId(@Param('id') categoryId: string): Promise<Category> {
+  async getCategoryId(
+    @Param('id') categoryId: string,
+  ): Promise<getCategoryWithProductsType> {
     return this.categoriesService.getCategoryId(Number(categoryId));
   }
 
@@ -40,7 +43,7 @@ export class CategoriesController {
   @Post()
   async createCategory(
     @Body() payload: CategoriesPayloadDto,
-  ): Promise<Category> {
+  ): Promise<getCategoryWithProductsType> {
     return this.categoriesService.createCategory(payload);
   }
 
@@ -49,7 +52,7 @@ export class CategoriesController {
   async updateCategoryId(
     @Param('id') categoryId: string,
     @Body() payload: CategoriesPayloadDto,
-  ): Promise<Category> {
+  ): Promise<getCategoryWithProductsType> {
     return this.categoriesService.updateCategoryId({
       categoryId: Number(categoryId),
       payload,
@@ -58,7 +61,9 @@ export class CategoriesController {
 
   @Public()
   @Delete(':id')
-  async deleteCategoryId(@Param('id') categoryId: string): Promise<Category> {
+  async deleteCategoryId(
+    @Param('id') categoryId: string,
+  ): Promise<getCategoryWithProductsType> {
     return this.categoriesService.deleteCategoryId(Number(categoryId));
   }
 
