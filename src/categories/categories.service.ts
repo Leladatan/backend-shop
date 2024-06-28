@@ -26,16 +26,11 @@ export class CategoriesService {
     return this.findCategory(categoryId);
   }
 
-  async createCategory(
-    payload: CategoriesPayloadDto,
-  ): Promise<getCategoryWithProductsType> {
+  async createCategory(payload: CategoriesPayloadDto): Promise<Category> {
     await this.isExistCategoryData(payload);
     return this.prismaService.category.create({
       data: {
         ...payload,
-      },
-      include: {
-        products: true,
       },
     });
   }
@@ -43,7 +38,7 @@ export class CategoriesService {
   async updateCategoryId({
     categoryId,
     payload,
-  }: updateCategoryIdType): Promise<getCategoryWithProductsType> {
+  }: updateCategoryIdType): Promise<Category> {
     await this.findCategory(categoryId);
     return this.prismaService.category.update({
       where: {
@@ -51,9 +46,6 @@ export class CategoriesService {
       },
       data: {
         ...payload,
-      },
-      include: {
-        products: true,
       },
     });
   }

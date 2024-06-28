@@ -43,7 +43,7 @@ export class CategoriesController {
   @Post()
   async createCategory(
     @Body() payload: CategoriesPayloadDto,
-  ): Promise<getCategoryWithProductsType> {
+  ): Promise<Category> {
     return this.categoriesService.createCategory(payload);
   }
 
@@ -52,7 +52,7 @@ export class CategoriesController {
   async updateCategoryId(
     @Param('id') categoryId: string,
     @Body() payload: CategoriesPayloadDto,
-  ): Promise<getCategoryWithProductsType> {
+  ): Promise<Category> {
     return this.categoriesService.updateCategoryId({
       categoryId: Number(categoryId),
       payload,
