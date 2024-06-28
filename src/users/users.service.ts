@@ -8,6 +8,7 @@ import { User } from '@prisma/client';
 import { ItemsPayloadDto } from '@/utils/items.dto';
 import {
   findUserType,
+  getUserWithVendor,
   updatePasswordType,
   updateUserId,
 } from '@/users/types/users.types';
@@ -25,7 +26,7 @@ export class UsersService {
     return this.getUsersItemsPayloadDto(username);
   }
 
-  async getUserId(userId: number): Promise<User> {
+  async getUserId(userId: number): Promise<getUserWithVendor> {
     return await this.findUser({ userId });
   }
 
@@ -77,13 +78,21 @@ export class UsersService {
     };
   }
 
-  async findUser({ email, username, userId = 0 }: findUserType): Promise<User> {
+  async findUser({
+    email,
+    username,
+    userId = 0,
+  }: findUserType): Promise<getUserWithVendor> {
     if (userId) {
-      const user: User | null = await this.prismaService.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
+      const user: getUserWithVendor | null =
+        await this.prismaService.user.findUnique({
+          where: {
+            id: userId,
+          },
+          include: {
+            vendor: true,
+          },
+        });
 
       if (!user) {
         throw new NotFoundException('User not found');
@@ -92,12 +101,16 @@ export class UsersService {
       return user;
     }
 
-    const user: User | null = await this.prismaService.user.findUnique({
-      where: {
-        email,
-        username,
-      },
-    });
+    const user: getUserWithVendor | null =
+      await this.prismaService.user.findUnique({
+        where: {
+          email,
+          username,
+        },
+        include: {
+          vendor: true,
+        },
+      });
 
     if (!user) {
       throw new NotFoundException('User not found');

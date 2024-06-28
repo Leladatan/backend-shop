@@ -4,6 +4,7 @@ import { ItemsPayloadDto } from '@/utils/items.dto';
 import { User } from '@prisma/client';
 import { Public } from '@/utils/decorators/public.decorator';
 import { UsersPayloadDto } from '@/users/dto/users.dto';
+import { getUserWithVendor } from '@/users/types/users.types';
 
 @Controller('users')
 export class UsersController {
@@ -19,7 +20,7 @@ export class UsersController {
 
   @Public()
   @Get(':id')
-  async getUserId(@Param('id') userId: string): Promise<User> {
+  async getUserId(@Param('id') userId: string): Promise<getUserWithVendor> {
     return this.usersService.getUserId(Number(userId));
   }
 
