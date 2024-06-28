@@ -39,6 +39,10 @@ export class ProductsWithCategoryPayloadDto {
   @IsNotEmpty()
   @IsNumber()
   stock: number;
+  @IsNotEmpty()
   @IsNumber({}, { each: true })
   categoryIds: number[];
+  @IsNotEmpty()
+  @IsNumber()
+  vendorId: number;
 }

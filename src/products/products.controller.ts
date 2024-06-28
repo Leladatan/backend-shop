@@ -1,12 +1,38 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
-import { ProductsService } from '@/categories/products/products.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ProductsService } from '@/products/products.service';
 import { Public } from '@/utils/decorators/public.decorator';
-import { ProductsWithCategoryPayloadDto } from '@/categories/products/dto/products.dto';
+import { ProductsWithCategoryPayloadDto } from '@/products/dto/products.dto';
 import { Product } from '@prisma/client';
+import { ItemsPayloadDto } from '@/utils/items.dto';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
+  @Public()
+  @Get()
+  async getProduct(
+    @Query() query: { name: string },
+  ): Promise<ItemsPayloadDto<Product>> {
+    return this.productsService.getProducts({ name: query.name }) as Promise<
+      ItemsPayloadDto<Product>
+    >;
+  }
+
+  @Public()
+  @Get(':id')
+  async getProductId(@Param('id') productId: string): Promise<Product> {
+    return this.productsService.getProductId(Number(productId));
+  }
 
   @Public()
   @Post()
@@ -14,12 +40,6 @@ export class ProductsController {
     @Body() payload: ProductsWithCategoryPayloadDto,
   ): Promise<Product> {
     return this.productsService.createProduct(payload);
-  }
-
-  @Public()
-  @Get(':id')
-  async getProductId(@Param('id') productId: string): Promise<Product> {
-    return this.productsService.getProductId(Number(productId));
   }
 
   @Public()
@@ -35,7 +55,7 @@ export class ProductsController {
   }
 
   @Public()
-  @Post(':id')
+  @Delete(':id')
   async deleteProductId(@Param('id') productId: string): Promise<Product> {
     return this.productsService.deleteProductId(Number(productId));
   }
