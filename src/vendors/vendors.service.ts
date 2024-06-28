@@ -9,6 +9,7 @@ import { Vendor } from '@prisma/client';
 import { VendorsPayloadDto } from '@/vendors/dto/vendors.dto';
 import {
   getVendorWithUserWithProducts,
+  isExistVendorResponseType,
   isExistVendorType,
   updateVendorType,
 } from '@/vendors/types/vendors.types';
@@ -58,6 +59,15 @@ export class VendorsService {
     });
   }
 
+  async deleteVendorId(vendorId: number): Promise<Vendor> {
+    await this.findVendor(vendorId);
+    return this.prismaService.vendor.delete({
+      where: {
+        id: vendorId,
+      },
+    });
+  }
+
   async getVendorsItemsPayloadDto(
     name?: string,
   ): Promise<ItemsPayloadDto<Vendor>> {
@@ -103,18 +113,39 @@ export class VendorsService {
     INN,
     OGRNIP,
     userId,
-  }: isExistVendorType): Promise<boolean> {
-    const vendor: Vendor | null = await this.prismaService.vendor.findUnique({
-      where: {
-        INN,
-        OGRNIP,
-        userId,
-      },
-    });
+  }: isExistVendorType): Promise<isExistVendorResponseType> {
+    const isExistINN: Vendor | null =
+      await this.prismaService.vendor.findUnique({
+        where: {
+          INN,
+        },
+      });
 
-    if (vendor) throw new BadRequestException('Vendor already exists');
+    if (isExistINN) throw new BadRequestException('INN already exists');
 
-    return !!vendor;
+    const isExistOGRNIP: Vendor | null =
+      await this.prismaService.vendor.findUnique({
+        where: {
+          OGRNIP,
+        },
+      });
+
+    if (isExistOGRNIP) throw new BadRequestException('OGRNIP already exists');
+
+    const isExistUser: Vendor | null =
+      await this.prismaService.vendor.findUnique({
+        where: {
+          userId,
+        },
+      });
+
+    if (isExistUser) throw new BadRequestException('User already exists');
+
+    return {
+      isExistINN: !!isExistINN,
+      isExistOGRNIP: !!isExistOGRNIP,
+      isExistUser: !!isExistUser,
+    };
   }
 
   async findVendor(vendorId: number): Promise<getVendorWithUserWithProducts> {

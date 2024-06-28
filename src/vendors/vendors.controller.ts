@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -12,7 +13,10 @@ import { ProductsService } from '@/products/products.service';
 import { Public } from '@/utils/decorators/public.decorator';
 import { ItemsPayloadDto } from '@/utils/items.dto';
 import { Vendor } from '@prisma/client';
-import { CreateVendorsPayloadDto, VendorsPayloadDto } from '@/vendors/dto/vendors.dto';
+import {
+  CreateVendorsPayloadDto,
+  VendorsPayloadDto,
+} from '@/vendors/dto/vendors.dto';
 
 @Controller('vendors')
 export class VendorsController {
@@ -51,6 +55,12 @@ export class VendorsController {
       vendorId: Number(vendorId),
       ...payload,
     });
+  }
+
+  @Public()
+  @Delete(':id')
+  async deleteVendorId(@Param('id') vendorId: string): Promise<Vendor> {
+    return this.vendorsService.deleteVendorId(Number(vendorId));
   }
 
   // Products

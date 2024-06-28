@@ -6,6 +6,11 @@ export type isExistVendorType = {
   OGRNIP: string;
   userId: number;
 };
+export type isExistVendorResponseType = {
+  isExistINN: boolean;
+  isExistOGRNIP: boolean;
+  isExistUser: boolean;
+};
 export type updateVendorType = CreateVendorsPayloadDto & {
   vendorId: number;
 };
