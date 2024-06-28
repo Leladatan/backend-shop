@@ -11,10 +11,14 @@ import {
   isExistVendorType,
   updateVendorType,
 } from '@/vendors/types/vendors.types';
+import { UsersService } from '@/users/users.service';
 
 @Injectable()
 export class VendorsService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private usersService: UsersService,
+  ) {}
 
   async getVendors(name: string): Promise<ItemsPayloadDto<Vendor>> {
     return this.getVendorsItemsPayloadDto(name);
@@ -25,7 +29,12 @@ export class VendorsService {
   }
 
   async createVendor(payload: VendorsPayloadDto): Promise<Vendor> {
-    await this.isExistVendor({ INN: payload.INN, OGRNIP: payload.OGRNIP });
+    await this.usersService.findUser({ userId: payload.userId });
+    await this.isExistVendor({
+      INN: payload.INN,
+      OGRNIP: payload.OGRNIP,
+      userId: payload.userId,
+    });
     return this.prismaService.vendor.create({
       data: {
         ...payload,
@@ -89,11 +98,16 @@ export class VendorsService {
     };
   }
 
-  async isExistVendor({ INN, OGRNIP }: isExistVendorType): Promise<boolean> {
+  async isExistVendor({
+    INN,
+    OGRNIP,
+    userId,
+  }: isExistVendorType): Promise<boolean> {
     const vendor: Vendor | null = await this.prismaService.vendor.findUnique({
       where: {
         INN,
         OGRNIP,
+        userId,
       },
     });
 
