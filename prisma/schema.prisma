@@ -69,12 +69,15 @@ model Product {
   stock       Int
 
   categories Category[] @relation(name: "CategoryToProduct")
-  vendors    Vendor[]   @relation(name: "VendorToProduct")
+  vendorId   Int
+  vendor     Vendor     @relation(name: "VendorToProduct", fields: [vendorId], references: [id])
 
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
 
   @@index([id])
+  @@index([name])
+  @@index([vendorId])
 }
 
 model Vendor {
